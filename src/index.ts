@@ -106,8 +106,14 @@ export default (apiUrl: string, httpClient = fetchUtils.fetchJson) => {
         break;
       }
       case CREATE: {
-        url = `${apiUrl}/${resource}`;
         options.method = "POST";
+
+        if (Array.isArray(params.data)) {
+          url = `${apiUrl}/${resource}/bulk`;
+          options.body = JSON.stringify({ bulk: params.data });
+          break;
+        }
+        url = `${apiUrl}/${resource}`;
         options.body = JSON.stringify(params.data);
         break;
       }
