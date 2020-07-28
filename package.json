@@ -24,6 +24,8 @@
   "license": "ISC",
   "devDependencies": {
     "eslint": "^6.0.1",
+    "husky": "^4.2.5",
+    "rimraf": "^3.0.2",
     "rollup": "^1.8.0",
     "rollup-plugin-commonjs": "^9.2.2",
     "rollup-plugin-json": "^4.0.0",
@@ -39,5 +41,10 @@
   },
   "peerDependencies": {
     "react-admin": "^2.8.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn build && git add ."
+    }
   }
 }
