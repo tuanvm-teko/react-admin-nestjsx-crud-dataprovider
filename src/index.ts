@@ -1,4 +1,4 @@
-import { RequestQueryBuilder, CondOperator } from '@nestjsx/crud-request';
+import { RequestQueryBuilder, CondOperator } from "@nestjsx/crud-request";
 import {
   fetchUtils,
   GET_LIST,
@@ -10,22 +10,24 @@ import {
   UPDATE_MANY,
   DELETE,
   DELETE_MANY,
-} from 'react-admin';
+} from "react-admin";
 
-export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
-  const composeFilter = (paramsFilter) => {
-
-    if (paramsFilter === '' || (typeof paramsFilter.q !== 'undefined' && paramsFilter.q === '')) {
-      paramsFilter = {}
+export default (apiUrl: string, httpClient = fetchUtils.fetchJson) => {
+  const composeFilter = (paramsFilter: any) => {
+    if (
+      paramsFilter === "" ||
+      (typeof paramsFilter.q !== "undefined" && paramsFilter.q === "")
+    ) {
+      paramsFilter = {};
     }
 
     const flatFilter = fetchUtils.flattenObject(paramsFilter);
-    const filter = Object.keys(flatFilter).map(key => {
-      const splitKey = key.split('||');
-      const ops = splitKey[1] ? splitKey[1] : 'cont';
+    const filter = Object.keys(flatFilter).map((key) => {
+      const splitKey = key.split("||");
+      const ops = splitKey[1] ? splitKey[1] : "cont";
       let field = splitKey[0];
 
-      if (field.indexOf('_') === 0 && field.indexOf('.') > -1) {
+      if (field.indexOf("_") === 0 && field.indexOf(".") > -1) {
         field = field.split(/\.(.+)/)[1];
       }
       return { field, operator: ops, value: flatFilter[key] };
@@ -33,17 +35,20 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
     return filter;
   };
 
-  const convertDataRequestToHTTP = (type, resource, params) => {
-    let url = '';
-    const options = {};
+  const convertDataRequestToHTTP = (
+    type: string,
+    resource: string,
+    params: any
+  ) => {
+    let url = "";
+    const options: any = {};
     switch (type) {
       case GET_LIST: {
         const { page, perPage } = params.pagination;
 
-        const query = RequestQueryBuilder
-          .create({
-            filter: composeFilter(params.filter),
-          })
+        const query = RequestQueryBuilder.create({
+          filter: composeFilter(params.filter) as any,
+        })
           .setLimit(perPage)
           .setPage(page)
           .sortBy(params.sort)
@@ -60,10 +65,9 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
         break;
       }
       case GET_MANY: {
-        const query = RequestQueryBuilder
-          .create()
+        const query = RequestQueryBuilder.create()
           .setFilter({
-            field: 'id',
+            field: "id",
             operator: CondOperator.IN,
             value: `${params.ids}`,
           })
@@ -75,7 +79,7 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
       }
       case GET_MANY_REFERENCE: {
         const { page, perPage } = params.pagination;
-        const filter = composeFilter(params.filter);
+        const filter = composeFilter(params.filter) as any;
 
         filter.push({
           field: params.target,
@@ -83,10 +87,9 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
           value: params.id,
         });
 
-        const query = RequestQueryBuilder
-          .create({
-            filter,
-          })
+        const query = RequestQueryBuilder.create({
+          filter,
+        })
           .sortBy(params.sort)
           .setLimit(perPage)
           .setOffset((page - 1) * perPage)
@@ -98,19 +101,19 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
       }
       case UPDATE: {
         url = `${apiUrl}/${resource}/${params.id}`;
-        options.method = 'PATCH';
+        options.method = "PATCH";
         options.body = JSON.stringify(params.data);
         break;
       }
       case CREATE: {
         url = `${apiUrl}/${resource}`;
-        options.method = 'POST';
+        options.method = "POST";
         options.body = JSON.stringify(params.data);
         break;
       }
       case DELETE: {
         url = `${apiUrl}/${resource}/${params.id}`;
-        options.method = 'DELETE';
+        options.method = "DELETE";
         break;
       }
       default:
@@ -119,7 +122,12 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
     return { url, options };
   };
 
-  const convertHTTPResponse = (response, type, resource, params) => {
+  const convertHTTPResponse = (
+    response: any,
+    type: string,
+    resource: string,
+    params: any
+  ) => {
     const { headers, json } = response;
     switch (type) {
       case GET_LIST:
@@ -135,35 +143,34 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
     }
   };
 
-  return (type, resource, params) => {
+  return (type: string, resource: string, params: any) => {
     if (type === UPDATE_MANY) {
       return Promise.all(
-        params.ids.map(id => httpClient(`${apiUrl}/${resource}/${id}`, {
-          method: 'PUT',
-          body: JSON.stringify(params.data),
-        })),
-      )
-        .then(responses => ({
-          data: responses.map(response => response.json),
-        }));
+        params.ids.map((id) =>
+          httpClient(`${apiUrl}/${resource}/${id}`, {
+            method: "PUT",
+            body: JSON.stringify(params.data),
+          })
+        )
+      ).then((responses) => ({
+        data: responses.map((response: any) => response.json),
+      }));
     }
     if (type === DELETE_MANY) {
       return Promise.all(
-        params.ids.map(id => httpClient(`${apiUrl}/${resource}/${id}`, {
-          method: 'DELETE',
-        })),
-      ).then(responses => ({
-        data: responses.map(response => response.json),
+        params.ids.map((id) =>
+          httpClient(`${apiUrl}/${resource}/${id}`, {
+            method: "DELETE",
+          })
+        )
+      ).then((responses) => ({
+        data: responses.map((response: any) => response.json),
       }));
     }
 
-    const { url, options } = convertDataRequestToHTTP(
-      type,
-      resource,
-      params,
-    );
-    return httpClient(url, options).then(
-      response => convertHTTPResponse(response, type, resource, params),
+    const { url, options } = convertDataRequestToHTTP(type, resource, params);
+    return httpClient(url, options).then((response) =>
+      convertHTTPResponse(response, type, resource, params)
     );
   };
 };

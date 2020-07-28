@@ -1,16 +1,13 @@
 {
-  "name": "@fusionworks/ra-data-nest-crud",
+  "name": "ra-nest-crud",
   "version": "1.0.8",
   "description": "a data provider for react admin that handles request from nestjsx-crud server",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "rollup": "rollup",
     "watch": "rollup -cw",
-    "build": "rollup -c",
-    "postbuild": "node lib/copy_package && node lib/copy_readme",
-    "patch": "npm version patch -m \"[skip travis] Release version: %s\"",
-    "prerelease": "npm whoami && npm run patch && npm run build",
-    "release": "npm publish dist --access public"
+    "build": "rimraf ./dist && tsc"
   },
   "repository": {
     "type": "git",
@@ -38,7 +35,7 @@
   },
   "homepage": "https://github.com/FusionWorks/react-admin-nestjsx-crud-dataprovider#readme",
   "dependencies": {
-    "@nestjsx/crud-request": "^4.1.0"
+    "@nestjsx/crud-request": "^4.6.2"
   },
   "peerDependencies": {
     "react-admin": "^2.8.5"
