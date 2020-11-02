@@ -46,7 +46,7 @@ export default (apiUrl: string, httpClient = fetchUtils.fetchJson) => {
         const { page, perPage } = params.pagination;
 
         const query = RequestQueryBuilder.create(
-          Array.isArray(params.filter)
+          !!params.filter["0"]
             ? {
                 or: composeFilter(params.filter[0]) as any,
               }
@@ -84,9 +84,14 @@ export default (apiUrl: string, httpClient = fetchUtils.fetchJson) => {
       }
       case GET_MANY_REFERENCE: {
         const { page, perPage } = params.pagination;
-        const isFilter = !Array.isArray(params.filter);
+        const isOr = !!params.filter["0"];
         let query;
-        if (isFilter) {
+        if (isOr) {
+          const or = composeFilter(params.filter[0]) as any;
+          query = RequestQueryBuilder.create({
+            or,
+          });
+        } else {
           const filter = composeFilter(params.filter) as any;
           filter.push({
             field: params.target,
@@ -95,11 +100,6 @@ export default (apiUrl: string, httpClient = fetchUtils.fetchJson) => {
           });
           query = RequestQueryBuilder.create({
             filter,
-          });
-        } else {
-          const or = composeFilter(params.filter[0]) as any;
-          query = RequestQueryBuilder.create({
-            or,
           });
         }
 
