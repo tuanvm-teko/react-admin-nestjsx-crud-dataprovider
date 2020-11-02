@@ -84,17 +84,26 @@ export default (apiUrl: string, httpClient = fetchUtils.fetchJson) => {
       }
       case GET_MANY_REFERENCE: {
         const { page, perPage } = params.pagination;
-        const filter = composeFilter(params.filter) as any;
+        const isFilter = !Array.isArray(params.filter);
+        let query;
+        if (isFilter) {
+          const filter = composeFilter(params.filter) as any;
+          filter.push({
+            field: params.target,
+            operator: CondOperator.EQUALS,
+            value: params.id,
+          });
+          query = RequestQueryBuilder.create({
+            filter,
+          });
+        } else {
+          const or = composeFilter(params.filter[0]) as any;
+          query = RequestQueryBuilder.create({
+            or,
+          });
+        }
 
-        filter.push({
-          field: params.target,
-          operator: CondOperator.EQUALS,
-          value: params.id,
-        });
-
-        const query = RequestQueryBuilder.create({
-          filter,
-        })
+        query
           .sortBy(params.sort)
           .setLimit(perPage)
           .setOffset((page - 1) * perPage)
