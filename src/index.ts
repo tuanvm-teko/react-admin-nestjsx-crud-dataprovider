@@ -34,7 +34,6 @@ export default (apiUrl: string, httpClient = fetchUtils.fetchJson) => {
     });
     return filter;
   };
-
   const convertDataRequestToHTTP = (
     type: string,
     resource: string,
@@ -46,9 +45,15 @@ export default (apiUrl: string, httpClient = fetchUtils.fetchJson) => {
       case GET_LIST: {
         const { page, perPage } = params.pagination;
 
-        const query = RequestQueryBuilder.create({
-          filter: composeFilter(params.filter) as any,
-        })
+        const query = RequestQueryBuilder.create(
+          Array.isArray(params.filter)
+            ? {
+                or: composeFilter(params.filter[0]) as any,
+              }
+            : {
+                filter: composeFilter(params.filter) as any,
+              }
+        )
           .setLimit(perPage)
           .setPage(page)
           .sortBy(params.sort)
