@@ -1,6 +1,6 @@
 {
   "name": "ra-nest-crud",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "description": "a data provider for react admin that handles request from nestjsx-crud server",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
