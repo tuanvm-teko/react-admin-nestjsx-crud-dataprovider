@@ -124,6 +124,10 @@ export default (apiUrl: string, httpClient = fetchUtils.fetchJson) => {
       }
       case DELETE: {
         url = `${apiUrl}/${resource}/${params.id}`;
+        if (!!params.data) {
+          options.body = JSON.stringify(params.data);
+        }
+
         options.method = "DELETE";
         break;
       }
