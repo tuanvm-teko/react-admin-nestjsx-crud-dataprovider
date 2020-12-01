@@ -44,11 +44,11 @@ export default (apiUrl: string, httpClient = fetchUtils.fetchJson) => {
     switch (type) {
       case GET_LIST: {
         const { page, perPage } = params.pagination;
-
         const query = RequestQueryBuilder.create(
           !!params.filter["0"]
             ? {
                 or: composeFilter(params.filter[0]) as any,
+                filter: composeFilter(params.filter) as any,
               }
             : {
                 filter: composeFilter(params.filter) as any,
