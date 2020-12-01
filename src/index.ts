@@ -45,11 +45,27 @@ export default (apiUrl: string, httpClient = fetchUtils.fetchJson) => {
       case GET_LIST: {
         const { page, perPage } = params.pagination;
         const { ["0"]: orCondition, ...andCondition } = params.filter;
+
+        const andConditionObject = composeFilter(andCondition).reduce(
+          (prev, item) => {
+            prev[item.field] = {
+              [item.operator]: item.value,
+            };
+            return prev;
+          },
+          {} as any
+        );
         const query = RequestQueryBuilder.create(
           !!orCondition
             ? {
-                or: composeFilter(orCondition) as any,
-                filter: composeFilter(andCondition) as any,
+                search: {
+                  $or: composeFilter(orCondition).map((item) => ({
+                    [item.field]: {
+                      [item.operator]: item.value,
+                    },
+                    ...andConditionObject,
+                  })),
+                },
               }
             : {
                 filter: composeFilter(andCondition) as any,
