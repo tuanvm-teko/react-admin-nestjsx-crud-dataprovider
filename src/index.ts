@@ -44,14 +44,15 @@ export default (apiUrl: string, httpClient = fetchUtils.fetchJson) => {
     switch (type) {
       case GET_LIST: {
         const { page, perPage } = params.pagination;
+        const { ["0"]: orCondition, ...andCondition } = params.filter;
         const query = RequestQueryBuilder.create(
-          !!params.filter["0"]
+          !!orCondition
             ? {
-                or: composeFilter(params.filter[0]) as any,
-                filter: composeFilter(params.filter) as any,
+                or: composeFilter(orCondition) as any,
+                filter: composeFilter(andCondition) as any,
               }
             : {
-                filter: composeFilter(params.filter) as any,
+                filter: composeFilter(andCondition) as any,
               }
         )
           .setLimit(perPage)
